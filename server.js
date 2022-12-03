@@ -5,8 +5,8 @@ app.listen(3000, () => {
 })
 // const contactsFunctions = require('./models/contacts');
 // const getId = async() => {
-//   const contact = await contactsFunctions.getContactById(5);
-//   console.log('esfdf',contact);
+//   const newContact = await contactsFunctions.addContact({ name:'al', email: 'addf', phone:'adf' });
+//   console.log('esfdf',newContact);
 // }
 
 // getId();
