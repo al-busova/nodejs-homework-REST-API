@@ -1,71 +1,99 @@
 const express = require("express");
 const contactsFunctions = require("../../models/contacts");
 const router = express.Router();
+const { HttpError } = require("../../helpers");
+const { schemaContact } = require("../../shemas/contacts");
 
-router.get("/", async (req, res) => {
-  const contacts = await contactsFunctions.listContacts();
-  res.json({
-    status: "success",
-    code: 200,
-    data: {
-      contacts,
-    },
-  });
+router.get("/", async (req, res, next) => {
+  try {
+    const contacts = await contactsFunctions.listContacts();
+    res.status(200).json({
+      status: "success",
+      data: {
+        contacts,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
-router.get("/:contactId", async (req, res) => {
-  const contact = await contactsFunctions.getContactById(req.params.contactId);
-  if (!contact) {
-    res.status(404).json({ message: "Not found" });
-    return;
+router.get("/:contactId", async (req, res, next) => {
+  try {
+    const { contactId } = req.params;
+    const contact = await contactsFunctions.getContactById(contactId);
+    if (!contact) {
+      throw HttpError(404, "Not found");
+    }
+    res.status(200).json({
+      status: "success",
+      data: contact,
+    });
+  } catch (error) {
+    next(error);
   }
-  res.json({
-    status: "success",
-    code: 200,
-    data: contact,
-  });
 });
 
-router.post("/", async (req, res) => {
-  const { name, email, phone } = req.body;
-  if (!name || !email || !phone) {
-    res.status(400).json({ message: "missing required name field" });
-    return;
+router.post("/", async (req, res, next) => {
+  try {
+    const validationBodyContact = schemaContact.validate(req.body);
+    if (Object.keys(validationBodyContact.value).length !== 3) {
+      throw HttpError(400, "missing required name field");
+    }
+    if (validationBodyContact.error) {
+      return res
+        .status(400)
+        .json({ status: validationBodyContact.error.details });
+    }
+    const newContact = await contactsFunctions.addContact(req.body);
+    res.status(201).json({
+      status: "success",
+      data: newContact,
+    });
+  } catch (error) {
+    next(error);
   }
-  const newContact = await contactsFunctions.addContact({ name, email, phone });
-  res.status(201).json({
-    status: "success",
-    code: 201,
-    data: newContact,
-  });
 });
 
 router.delete("/:contactId", async (req, res, next) => {
-  const contact = await contactsFunctions.removeContact(req.params.contactId);
-  if (!contact) {
-    res.status(404).json({ message: "Not found" });
-    return;
+  try {
+    const { contactId } = req.params;
+    const contact = await contactsFunctions.removeContact(contactId);
+    if (!contact) {
+      throw HttpError(404, "Not found");
+    }
+    res.status(200).json({ message: "contact deleted" });
+  } catch (error) {
+    next(error);
   }
-  res.status(200).json({ message: "contact deleted" });
 });
 
 router.put("/:contactId", async (req, res, next) => {
-  const { contactId } = req.params;
-  const { name, email, phone } = req.body;
-  if (!name || !email || !phone) {
-    res.status(400).json({ message: "missing fields" });
-    return;
+  try {
+    const { contactId } = req.params;
+    const validationBodyContact = schemaContact.validate(req.body);
+    if (Object.keys(validationBodyContact.value).length !== 3) {
+      throw HttpError(400, "missing fields");
+    }
+    if (validationBodyContact.error) {
+      return res
+        .status(400)
+        .json({ status: validationBodyContact.error.details });
+    }
+    const updateContact = await contactsFunctions.updateContact(
+      contactId,
+      req.body
+    );
+    if (!updateContact) {
+      throw HttpError(404, "Not found");
+    }
+    res.status(200).json({
+      status: "success",
+      data: updateContact,
+    });
+  } catch (error) {
+    next(error);
   }
-  const updateContact = await contactsFunctions.updateContact(contactId, {
-    name,
-    email,
-    phone,
-  });
-  res.json({
-    status: "success",
-    code: 200,
-    data: updateContact,
-  });
 });
 
 module.exports = router;
