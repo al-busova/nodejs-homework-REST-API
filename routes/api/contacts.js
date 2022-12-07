@@ -2,7 +2,7 @@ const express = require("express");
 const contactsFunctions = require("../../models/contacts");
 const router = express.Router();
 const { HttpError } = require("../../helpers");
-const { schemaContact } = require("../../shemas/contacts");
+const {contactValidation} =require('../../middlewares/validationContacts')
 
 router.get("/", async (req, res, next) => {
   try {
@@ -34,17 +34,8 @@ router.get("/:contactId", async (req, res, next) => {
   }
 });
 
-router.post("/", async (req, res, next) => {
+router.post("/", contactValidation, async (req, res, next) => {
   try {
-    const validationBodyContact = schemaContact.validate(req.body);
-    if (Object.keys(validationBodyContact.value).length !== 3) {
-      throw HttpError(400, "missing required name field");
-    }
-    if (validationBodyContact.error) {
-      return res
-        .status(400)
-        .json({ status: validationBodyContact.error.details });
-    }
     const newContact = await contactsFunctions.addContact(req.body);
     res.status(201).json({
       status: "success",
@@ -68,18 +59,9 @@ router.delete("/:contactId", async (req, res, next) => {
   }
 });
 
-router.put("/:contactId", async (req, res, next) => {
+router.put("/:contactId",contactValidation, async (req, res, next) => {
   try {
     const { contactId } = req.params;
-    const validationBodyContact = schemaContact.validate(req.body);
-    if (Object.keys(validationBodyContact.value).length !== 3) {
-      throw HttpError(400, "missing fields");
-    }
-    if (validationBodyContact.error) {
-      return res
-        .status(400)
-        .json({ status: validationBodyContact.error.details });
-    }
     const updateContact = await contactsFunctions.updateContact(
       contactId,
       req.body
