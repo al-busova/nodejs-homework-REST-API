@@ -7,6 +7,7 @@ const Joi = require("joi");
     phone: Joi.string()
       .pattern(/^\(?\d{1,3}?\)?\d+$/)
       .required(),
+    favorite: Joi.boolean().required(),
   });
 
 module.exports = {
