@@ -7,9 +7,9 @@ const updateFavoriteContact = require("./updateFavoriteContact");
 
 module.exports = {
   getAll,
-    getById,
-    addContact,
-    deleteContact,
-updateContact,
+  getById,
+  addContact,
+  deleteContact,
+  updateContact,
   updateFavoriteContact,
 };
