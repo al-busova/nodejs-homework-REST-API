@@ -3,8 +3,9 @@ const { HttpError } = require("../../helpers");
 
 const getById = async (req, res, next) => {
   try {
+    const { _id: owner } = req.user;
     const { contactId } = req.params;
-    const contact = await Contact.findById(contactId);
+    const contact = await Contact.findById(contactId, owner);
     if (!contact) {
       throw HttpError(404, "Not found");
     }

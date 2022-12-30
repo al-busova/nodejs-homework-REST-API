@@ -6,22 +6,22 @@ const subscriptions = ["starter", "pro", "business"];
 
 const userSchema = new Schema(
   {
-  password: {
-    type: String,
-    required: [true, 'Set password for user'],
+    password: {
+      type: String,
+      required: [true, "Set password for user"],
+    },
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      unique: true,
+    },
+    subscription: {
+      type: String,
+      enum: subscriptions,
+      default: "starter",
+    },
+    token: String,
   },
-  email: {
-    type: String,
-    required: [true, 'Email is required'],
-    unique: true,
-  },
-  subscription: {
-    type: String,
-    enum: subscriptions,
-    default: "starter"
-  },
-  token: String
-},
   { versionKey: false, timestamps: true }
 );
 
@@ -34,7 +34,9 @@ const registerSchema = Joi.object({
   email: Joi.string()
     .email({ minDomainSegments: 2, allowFullyQualified: true })
     .required(),
-  subscription: Joi.string().valid(...subscriptions).required(),
+  subscription: Joi.string()
+    .valid(...subscriptions)
+    .required(),
 });
 
 const loginSchema = Joi.object({
@@ -44,12 +46,19 @@ const loginSchema = Joi.object({
     .required(),
 });
 
+const updateSubscriptionSchema = Joi.object({
+  subscription: Joi.string()
+    .valid(...subscriptions)
+    .required(),
+});
+
 const schemas = {
   registerSchema,
-  loginSchema
+  loginSchema,
+  updateSubscriptionSchema,
 };
 
 module.exports = {
   User,
-  schemas
+  schemas,
 };
