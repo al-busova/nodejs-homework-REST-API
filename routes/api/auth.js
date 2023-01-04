@@ -5,9 +5,9 @@ const {
   login,
   logout,
   current,
-  updateSubscription,
+  updateSubscription, updateAvatar,
 } = require("../../controllers/auth");
-const { validationUsers, authenticate } = require("../../middlewares");
+const { validationUsers, authenticate, upload } = require("../../middlewares");
 
 router.post("/register", validationUsers.registerValidation, register);
 router.post("/login", validationUsers.loginValidation, login);
@@ -19,5 +19,6 @@ router.patch(
   validationUsers.subscriptionValidation,
   updateSubscription
 );
+router.patch("/avatars",  authenticate, upload.single("avatar"), updateAvatar);
 
 module.exports = router;
