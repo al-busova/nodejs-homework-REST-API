@@ -17,7 +17,17 @@ const loginValidation = (req, res, next) => {
 };
 
 const subscriptionValidation = (req, res, next) => {
-  const validationBodyUser = schemas.updateSubscriptionSchema.validate(req.body);
+  const validationBodyUser = schemas.updateSubscriptionSchema.validate(
+    req.body
+  );
+  if (validationBodyUser.error) {
+    return res.status(400).json({ status: validationBodyUser.error.details });
+  }
+  next();
+};
+
+const emailValidation = (req, res, next) => {
+  const validationBodyUser = schemas.emailSchema.validate(req.body);
   if (validationBodyUser.error) {
     return res.status(400).json({ status: validationBodyUser.error.details });
   }
@@ -27,5 +37,6 @@ const subscriptionValidation = (req, res, next) => {
 module.exports = {
   registerValidation,
   loginValidation,
-  subscriptionValidation
+  subscriptionValidation,
+  emailValidation,
 };

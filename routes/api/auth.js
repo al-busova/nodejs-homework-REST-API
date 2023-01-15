@@ -5,7 +5,10 @@ const {
   login,
   logout,
   current,
-  updateSubscription, updateAvatar,
+  updateSubscription,
+  updateAvatar,
+  verify,
+  resendVerifyEmail,
 } = require("../../controllers/auth");
 const { validationUsers, authenticate, upload } = require("../../middlewares");
 
@@ -19,6 +22,8 @@ router.patch(
   validationUsers.subscriptionValidation,
   updateSubscription
 );
-router.patch("/avatars",  authenticate, upload.single("avatar"), updateAvatar);
+router.patch("/avatars", authenticate, upload.single("avatar"), updateAvatar);
+router.get("/verify/:verificationToken", verify);
+router.post("/verify", validationUsers.emailValidation, resendVerifyEmail);
 
 module.exports = router;
